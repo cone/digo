@@ -11,36 +11,36 @@ type Dummy struct {
 }
 
 func TestTypeMap_Add(t *testing.T) {
-	resetTypeMap()
+	registry := TypeMap{}
 
 	test := "Hello"
-	err := TypeRegistry.Add(test)
+	err := registry.Add(test)
 
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 	}
 
-	tp := TypeRegistry["string"]
+	tp := registry["string"]
 
 	if toString(tp) != "string" {
-		t.Error("Incorrect type")
+		t.Errorf("Incorrect type: %s", toString(tp))
 	}
 }
 
 func TestTypeMap_AddType(t *testing.T) {
-	resetTypeMap()
+	registry := TypeMap{}
 
 	test := "Hello"
 
 	tp := reflect.TypeOf(test)
 
-	err := TypeRegistry.AddType(tp)
+	err := registry.AddType(tp)
 
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 	}
 
-	tp := TypeRegistry["string"]
+	tp = registry["string"]
 
 	if toString(tp) != "string" {
 		t.Error("Incorrect type")
@@ -48,13 +48,15 @@ func TestTypeMap_AddType(t *testing.T) {
 }
 
 func TestTypeMap_Get(t *testing.T) {
-	resetTypeMap()
+	registry := TypeMap{}
+
+	test := "Hello"
 
 	tp := reflect.TypeOf(test)
 
-	TypeRegistry["string"] = tp
+	registry["string"] = tp
 
-	gottenTp, err := TypeRegistry.Get()
+	gottenTp, err := registry.Get("string")
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 	}
@@ -62,10 +64,6 @@ func TestTypeMap_Get(t *testing.T) {
 	if toString(gottenTp) != "string" {
 		t.Error("Incorrect type")
 	}
-}
-
-func resetTypeMap() {
-	TypeRegistry = TypeMap{}
 }
 
 func toString(param reflect.Type) string {
