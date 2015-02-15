@@ -10,7 +10,7 @@ type Dummy struct {
 	Field1 string
 }
 
-func TestTypeMap_Add(t *testing.T) {
+func TestTypeMap_Add_AddingString(t *testing.T) {
 	registry := TypeMap{}
 
 	test := "Hello"
@@ -23,6 +23,23 @@ func TestTypeMap_Add(t *testing.T) {
 	tp := registry["string"]
 
 	if toString(tp) != "string" {
+		t.Errorf("Incorrect type: %s", toString(tp))
+	}
+}
+
+func TestTypeMap_Add_AddingStruct(t *testing.T) {
+	registry := TypeMap{}
+
+	test := Dummy{}
+	err := registry.Add(test)
+
+	if err != nil {
+		t.Error("An error has ocurred: ", err)
+	}
+
+	tp := registry["digo.Dummy"]
+
+	if toString(tp) != "digo.Dummy" {
 		t.Errorf("Incorrect type: %s", toString(tp))
 	}
 }
