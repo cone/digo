@@ -6,10 +6,6 @@ import (
 	"testing"
 )
 
-type Dummy struct {
-	Field1 string
-}
-
 func TestTypeMap_Add_AddingString(t *testing.T) {
 	registry := TypeMap{}
 
