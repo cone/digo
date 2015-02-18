@@ -1,7 +1,7 @@
 package digo
 
 import (
-	"fmt"
+	//"fmt"
 	"reflect"
 )
 
@@ -24,19 +24,16 @@ func (this *Injector) Resolve(node *DependencyNode) (interface{}, error) {
 
 	cp := reflect.New(t).Elem()
 
-	if t.Kind() == reflect.Struct {
-		for _, dep := range node.Dependencies {
-			resolvedDep, err := this.Resolve(dep)
-			if err != nil {
-				return struct{}{}, err
-			}
-			fmt.Printf("The node %s has a dep of type %v", node.Name, reflect.TypeOf(resolvedDep))
-			fmt.Println()
+	for _, dependency := range node.Dependencies {
+		f := cp.FieldByName(dependency.FieldName)
+
+		depcp, err := this.Resolve(dependency)
+		if err != nil {
+			return struct{}{}, err
 		}
+
+		f.Set(reflect.ValueOf(depcp))
 	}
-	//call resolve for each of its dependencies
-	//iterate the struct fields (if it is a struct)
-	//and assign the values to the correct field
 
 	return cp.Interface(), nil
 }
