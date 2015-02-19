@@ -4,6 +4,15 @@ import (
 	"errors"
 )
 
+var Digo *ContextManager
+
+func init() {
+	if Digo == nil {
+		Digo = new(ContextManager)
+		Digo.contexts = map[string]*Context{}
+	}
+}
+
 type ContextManager struct {
 	contexts map[string]*Context
 }
@@ -34,5 +43,3 @@ func (this *ContextManager) newContext(filePath string) (*Context, error) {
 
 	return ctx, nil
 }
-
-//TODO: Make context manager singleton
