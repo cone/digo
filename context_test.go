@@ -1,7 +1,6 @@
 package digo
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -26,9 +25,9 @@ func TestContext_Unmarshal(t *testing.T) {
 }
 
 func TestContext_Get(t *testing.T) {
-	TypeRegistry["digo.Kitchen"] = reflect.TypeOf(Kitchen{})
-	TypeRegistry["digo.SuperFridge"] = reflect.TypeOf(&SuperFridge{})
-	TypeRegistry["digo.OldStove"] = reflect.TypeOf(OldStove{})
+	TypeRegistry.Add(Kitchen{})
+	TypeRegistry.Add(&SuperFridge{})
+	TypeRegistry.Add(OldStove{})
 
 	path := "test-data/test.json"
 

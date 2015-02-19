@@ -21,18 +21,18 @@ func TestInjector_New(t *testing.T) {
 }
 
 func TestInjector_Resolve(t *testing.T) {
-	TypeRegistry["digo.Kitchen"] = reflect.TypeOf(Kitchen{})
-	TypeRegistry["digo.SuperFridge"] = reflect.TypeOf(&SuperFridge{})
-	TypeRegistry["digo.OldStove"] = reflect.TypeOf(OldStove{})
+	TypeRegistry.Add(Kitchen{})
+	TypeRegistry.Add(&SuperFridge{})
+	TypeRegistry.Add(OldStove{})
 
 	ctxMap := map[string]*NodeData{
 		"super_fridge": &NodeData{
-			Type: "digo.SuperFridge",
+			Type: "*digo.SuperFridge",
 		},
 		"kitchen": &NodeData{
 			Type: "digo.Kitchen",
-			Deps: []*NodeData{
-				&NodeData{
+			Deps: []*DepData{
+				&DepData{
 					ID:    "super_fridge",
 					Field: "MyFridge",
 				},

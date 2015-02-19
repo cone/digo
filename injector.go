@@ -51,7 +51,7 @@ func (this *Injector) newTypeOf(key string) (reflect.Value, error) {
 	return reflect.New(t).Elem(), nil
 }
 
-func (this *Injector) assignValues(cp reflect.Value, dependency *NodeData, nodeMap map[string]*NodeData) error {
+func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMap map[string]*NodeData) error {
 	var depRoot *NodeData
 
 	if depNode, exists := nodeMap[dependency.ID]; exists {
@@ -78,7 +78,7 @@ func (this *Injector) assignValues(cp reflect.Value, dependency *NodeData, nodeM
 		}
 
 	} else {
-		return errors.New("Invalid Field: " + dependency.Field + " from dep: " + dependency.Type)
+		return errors.New("Invalid Field: " + dependency.Field + " from dep: " + depRoot.Type)
 	}
 
 	return nil

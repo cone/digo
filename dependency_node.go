@@ -1,12 +1,11 @@
 package digo
 
-import (
-	"reflect"
-)
+type NodeData struct {
+	Type string     `json:"type"`
+	Deps []*DepData `json:"deps"`
+}
 
-type DependencyNode struct {
-	TypeName     string            `json:"type"`
-	Type         reflect.Type      `json: "-"`
-	FieldName    string            `json:"field"`
-	Dependencies []*DependencyNode `json:"deps"`
+type DepData struct {
+	ID    string `json:"id"`
+	Field string `json:"field"`
 }

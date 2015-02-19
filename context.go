@@ -11,13 +11,6 @@ type ContextData struct {
 	NodeMap map[string]*NodeData `json:"nodes"`
 }
 
-type NodeData struct {
-	ID    string      `json:"id"`
-	Field string      `json:"field"`
-	Type  string      `json:"type"`
-	Deps  []*NodeData `json:"deps"`
-}
-
 type Context struct {
 	singletons map[string]interface{}
 	Nodes      *ContextData
