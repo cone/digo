@@ -5,6 +5,14 @@ import (
 	"reflect"
 )
 
+func init() {
+	if depInjector == nil {
+		depInjector = new(Injector)
+	}
+}
+
+var depInjector *Injector
+
 type Injector struct{}
 
 func (this *Injector) New(key string) (interface{}, error) {
@@ -17,7 +25,7 @@ func (this *Injector) New(key string) (interface{}, error) {
 }
 
 func (this *Injector) Resolve(node *DependencyNode) (interface{}, error) {
-	cp, err := this.newTypeOf(node.Name)
+	cp, err := this.newTypeOf(node.TypeName)
 	if err != nil {
 		return struct{}{}, errors.New("Error creating new Type -> " + err.Error())
 	}
@@ -62,11 +70,8 @@ func (this *Injector) assignValues(cp reflect.Value, dependency *DependencyNode)
 		}
 
 	} else {
-		return errors.New("Invalid Field")
+		return errors.New("Invalid Field: " + dependency.FieldName)
 	}
 
 	return nil
 }
-
-// TODO: Add a 'Get' method that returns the
-// struct with all its dependencies solved

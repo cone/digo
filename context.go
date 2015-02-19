@@ -9,8 +9,7 @@ import (
 
 type Context struct {
 	singletons map[string]interface{} `json:"-"`
-	injector   *Injector              `json: "-"`
-	nodes      []*DependencyNode      `json:"nodes"`
+	Nodes      []*DependencyNode      `json:"nodes"`
 }
 
 func (this *Context) Unmarshal(filePath string) error {
@@ -23,9 +22,6 @@ func (this *Context) Unmarshal(filePath string) error {
 	if err != nil {
 		return errors.New("Error unmarshaling data -> " + err.Error())
 	}
-
-	this.injector = &Injector{}
-	//TODO: Make injector singleton
 
 	return nil
 }
@@ -45,5 +41,18 @@ func (this *Context) getFileBytes(filePath string) ([]byte, error) {
 }
 
 func (this *Context) Get(key string) (interface{}, error) {
-	return struct{}{}, nil
+	var node *DependencyNode
+
+	for _, firstChildNode := range this.Nodes {
+		if firstChildNode.TypeName == key {
+			node = firstChildNode
+			break
+		}
+	}
+
+	if node == nil {
+		return struct{}{}, errors.New("The given type cannot be found (forgot to add to the TypeRegister?)")
+	}
+
+	return depInjector.Resolve(node)
 }

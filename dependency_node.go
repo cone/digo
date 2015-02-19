@@ -5,8 +5,8 @@ import (
 )
 
 type DependencyNode struct {
-	Name         string
-	Type         reflect.Type
-	FieldName    string
-	Dependencies []*DependencyNode
+	TypeName     string            `json:"type"`
+	Type         reflect.Type      `json: "-"`
+	FieldName    string            `json:"field"`
+	Dependencies []*DependencyNode `json:"deps"`
 }

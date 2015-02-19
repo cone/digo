@@ -1,0 +1,18 @@
+{
+  "foo": "foo",
+  "nodes":[
+    {
+      "type": "digo.Kitchen",
+      "deps": [
+        {
+          "type": "digo.SuperFridge",
+          "field": "MyFridge"
+        },
+        {
+          "type": "digo.OldStove",
+          "field": "MyStove"
+        }
+      ]
+    }
+  ]
+}
