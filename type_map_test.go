@@ -26,16 +26,16 @@ func TestTypeMap_Add_AddingString(t *testing.T) {
 func TestTypeMap_Add_AddingStruct(t *testing.T) {
 	registry := TypeMap{}
 
-	test := Dummy{}
+	test := Kitchen{}
 	err := registry.Add(test)
 
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 	}
 
-	tp := registry["digo.Dummy"]
+	tp := registry["digo.Kitchen"]
 
-	if toString(tp) != "digo.Dummy" {
+	if toString(tp) != "digo.Kitchen" {
 		t.Errorf("Incorrect type: %s", toString(tp))
 	}
 }

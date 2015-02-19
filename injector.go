@@ -1,7 +1,7 @@
 package digo
 
 import (
-	//"fmt"
+	"errors"
 	"reflect"
 )
 
@@ -27,12 +27,25 @@ func (this *Injector) Resolve(node *DependencyNode) (interface{}, error) {
 	for _, dependency := range node.Dependencies {
 		f := cp.FieldByName(dependency.FieldName)
 
-		depcp, err := this.Resolve(dependency)
-		if err != nil {
-			return struct{}{}, err
+		if f.IsValid() {
+
+			if f.CanSet() {
+
+				depcp, err := this.Resolve(dependency)
+				if err != nil {
+					return struct{}{}, err
+				}
+
+				f.Set(reflect.ValueOf(depcp))
+
+			} else {
+				return struct{}{}, errors.New("Field cannot be set")
+			}
+
+		} else {
+			return struct{}{}, errors.New("Invalid Field")
 		}
 
-		f.Set(reflect.ValueOf(depcp))
 	}
 
 	return cp.Interface(), nil

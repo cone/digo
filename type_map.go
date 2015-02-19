@@ -1,6 +1,7 @@
 package digo
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -29,5 +30,8 @@ func (this TypeMap) AddType(param reflect.Type) error {
 }
 
 func (this TypeMap) Get(key string) (reflect.Type, error) {
+	if t, exists := this[key]; !exists {
+		return t, errors.New("No such Type")
+	}
 	return this[key], nil
 }

@@ -1,17 +1,26 @@
 package digo
 
-type Dummy struct {
-	Field1 string
-	Field2 DummyInterface
+type Kitchen struct {
+	MyFridge Fridge
+	MyStove  Stove
 }
 
-type Dummy2 struct {
+type Fridge interface {
+	Freeze() string
 }
 
-func (d *Dummy2) Foo() string {
-	return "From Dummy2"
+type Stove interface {
+	Fry() string
 }
 
-type DummyInterface interface {
-	Foo() string
+type SuperFridge struct{}
+
+func (this *SuperFridge) Freeze() string {
+	return "Super Freeze"
+}
+
+type OldStove struct{}
+
+func (this OldStove) Fry() string {
+	return "Frying slooooowly"
 }

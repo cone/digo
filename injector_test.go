@@ -8,16 +8,14 @@ import (
 func TestInjector_New(t *testing.T) {
 	injector := new(Injector)
 
-	test := "hello"
+	TypeRegistry["digo.Kitchen"] = reflect.TypeOf(Kitchen{})
 
-	TypeRegistry["string"] = reflect.TypeOf(test)
-
-	cp, err := injector.New("string")
+	cp, err := injector.New("digo.Kitchen")
 	if err != nil {
 		t.Error("Type not found")
 	}
 
-	if _, ok := cp.(string); !ok {
+	if _, ok := cp.(Kitchen); !ok {
 		t.Error("Type assertion failed!")
 	}
 }
@@ -25,18 +23,16 @@ func TestInjector_New(t *testing.T) {
 func TestInjector_Resolve(t *testing.T) {
 	injector := new(Injector)
 
-	test := ""
-
-	TypeRegistry["digo.Dummy"] = reflect.TypeOf(Dummy{})
-	TypeRegistry["string"] = reflect.TypeOf(test)
-	TypeRegistry["digo.Dummy2"] = reflect.TypeOf(&Dummy2{})
+	TypeRegistry["digo.Kitchen"] = reflect.TypeOf(Kitchen{})
+	TypeRegistry["digo.SuperFridge"] = reflect.TypeOf(&SuperFridge{})
+	TypeRegistry["digo.OldStove"] = reflect.TypeOf(OldStove{})
 
 	dependencyTree := &DependencyNode{
-		Name: "digo.Dummy",
+		Name: "digo.Kitchen",
 		Dependencies: []*DependencyNode{
 			{
-				Name:      "digo.Dummy2",
-				FieldName: "Field2",
+				Name:      "digo.SuperFridge",
+				FieldName: "MyFridge",
 			},
 		},
 	}
@@ -46,13 +42,13 @@ func TestInjector_Resolve(t *testing.T) {
 		t.Error("The error has ocurred", err)
 	}
 
-	if _, ok := target.(Dummy); !ok {
+	if _, ok := target.(Kitchen); !ok {
 		t.Error("Type assertion failed!")
 	}
 
-	asserted := target.(Dummy)
+	asserted := target.(Kitchen)
 
-	if asserted.Field2.Foo() != "From Dummy2" {
+	if asserted.MyFridge.Freeze() != "Super Freeze" {
 		t.Error("Incorrect value")
 	}
 }
