@@ -7,9 +7,20 @@ import (
 	"os"
 )
 
+type ContextData struct {
+	NodeMap map[string]*NodeData `json:"nodes"`
+}
+
+type NodeData struct {
+	ID    string      `json:"id"`
+	Field string      `json:"field"`
+	Type  string      `json:"type"`
+	Deps  []*NodeData `json:"deps"`
+}
+
 type Context struct {
-	singletons map[string]interface{} `json:"-"`
-	Nodes      []*DependencyNode      `json:"nodes"`
+	singletons map[string]interface{}
+	Nodes      *ContextData
 }
 
 func (this *Context) Unmarshal(filePath string) error {
@@ -41,18 +52,13 @@ func (this *Context) getFileBytes(filePath string) ([]byte, error) {
 }
 
 func (this *Context) Get(key string) (interface{}, error) {
-	var node *DependencyNode
+	var node *NodeData
 
-	for _, firstChildNode := range this.Nodes {
-		if firstChildNode.TypeName == key {
-			node = firstChildNode
-			break
-		}
-	}
-
-	if node == nil {
+	if tmpNode, exists := this.Nodes.NodeMap[key]; exists {
+		node = tmpNode
+	} else {
 		return struct{}{}, errors.New("The given type cannot be found (forgot to add to the TypeRegister?)")
 	}
 
-	return depInjector.Resolve(node)
+	return depInjector.Resolve(node, this.Nodes.NodeMap)
 }
