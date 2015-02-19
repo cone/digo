@@ -25,23 +25,30 @@ func TestInjector_Resolve(t *testing.T) {
 	TypeRegistry["digo.SuperFridge"] = reflect.TypeOf(&SuperFridge{})
 	TypeRegistry["digo.OldStove"] = reflect.TypeOf(OldStove{})
 
-	dependencyTree := &DependencyNode{
-		TypeName: "digo.Kitchen",
-		Dependencies: []*DependencyNode{
-			{
-				TypeName:  "digo.SuperFridge",
-				FieldName: "MyFridge",
+	ctxMap := map[string]*NodeData{
+		"super_fridge": &NodeData{
+			Type: "digo.SuperFridge",
+		},
+		"kitchen": &NodeData{
+			Type: "digo.Kitchen",
+			Deps: []*NodeData{
+				&NodeData{
+					ID:    "super_fridge",
+					Field: "MyFridge",
+				},
 			},
 		},
 	}
 
-	target, err := depInjector.Resolve(dependencyTree)
+	target, err := depInjector.Resolve(ctxMap["kitchen"], ctxMap)
 	if err != nil {
-		t.Error("The error has ocurred", err)
+		t.Error("The error has ocurred:", err)
+		return
 	}
 
 	if _, ok := target.(Kitchen); !ok {
 		t.Error("Type assertion failed!")
+		return
 	}
 
 	asserted := target.(Kitchen)

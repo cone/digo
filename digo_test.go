@@ -18,11 +18,13 @@ func TestDigo_Context(t *testing.T) {
 	ctx, err := Digo.Context("test-data/test.json")
 	if err != nil {
 		t.Error("An error has ocurred:", err)
+		return
 	}
 
-	i, err := ctx.Get("digo.Kitchen")
+	i, err := ctx.Get("kitchen")
 	if err != nil {
-		t.Error("An errorhas ocurred:", err)
+		t.Error("An error has ocurred:", err)
+		return
 	}
 
 	if _, ok := i.(Kitchen); !ok {

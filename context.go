@@ -29,10 +29,14 @@ func (this *Context) Unmarshal(filePath string) error {
 		return errors.New("Error getting file data -> " + err.Error())
 	}
 
-	err = json.Unmarshal(data, this)
+	ctxData := &ContextData{}
+
+	err = json.Unmarshal(data, ctxData)
 	if err != nil {
 		return errors.New("Error unmarshaling data -> " + err.Error())
 	}
+
+	this.Nodes = ctxData
 
 	return nil
 }
@@ -57,7 +61,7 @@ func (this *Context) Get(key string) (interface{}, error) {
 	if tmpNode, exists := this.Nodes.NodeMap[key]; exists {
 		node = tmpNode
 	} else {
-		return struct{}{}, errors.New("The given type cannot be found (forgot to add to the TypeRegister?)")
+		return struct{}{}, errors.New("The given type cannot be found: " + key + " (forgot to add to the TypeRegister?)")
 	}
 
 	return depInjector.Resolve(node, this.Nodes.NodeMap)

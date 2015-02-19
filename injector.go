@@ -32,15 +32,9 @@ func (this *Injector) Resolve(node *NodeData, nodeMap map[string]*NodeData) (int
 
 	for _, dependency := range node.Deps {
 
-		if depNode, exists := nodeMap[dependency.ID]; exists {
-
-			err := this.assignValues(cp, depNode, nodeMap)
-			if err != nil {
-				return struct{}{}, errors.New("Error resolving dependencies -> " + err.Error())
-			}
-
-		} else {
-			return struct{}{}, errors.New("Dependency Id not found -> " + err.Error())
+		err := this.assignValues(cp, dependency, nodeMap)
+		if err != nil {
+			return struct{}{}, errors.New("Error resolving dependencies -> " + err.Error())
 		}
 
 	}
@@ -58,13 +52,21 @@ func (this *Injector) newTypeOf(key string) (reflect.Value, error) {
 }
 
 func (this *Injector) assignValues(cp reflect.Value, dependency *NodeData, nodeMap map[string]*NodeData) error {
+	var depRoot *NodeData
+
+	if depNode, exists := nodeMap[dependency.ID]; exists {
+		depRoot = depNode
+	} else {
+		return errors.New("Dependency Id: " + dependency.ID + " not found")
+	}
+
 	f := cp.FieldByName(dependency.Field)
 
 	if f.IsValid() {
 
 		if f.CanSet() {
 
-			depcp, err := this.Resolve(dependency, nodeMap)
+			depcp, err := this.Resolve(depRoot, nodeMap)
 			if err != nil {
 				return err
 			}
@@ -76,7 +78,7 @@ func (this *Injector) assignValues(cp reflect.Value, dependency *NodeData, nodeM
 		}
 
 	} else {
-		return errors.New("Invalid Field: " + dependency.Field)
+		return errors.New("Invalid Field: " + dependency.Field + " from dep: " + dependency.Type)
 	}
 
 	return nil

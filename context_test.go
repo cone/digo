@@ -15,13 +15,12 @@ func TestContext_Unmarshal(t *testing.T) {
 		t.Error("An error has ocurred: ", err)
 	}
 
-	if len(ctx.Nodes) != 1 {
+	if len(ctx.Nodes.NodeMap) < 1 {
 		t.Error("Incorrect number of nodes")
-		t.Error(ctx)
 		return
 	}
 
-	if ctx.Nodes[0].TypeName != "digo.Kitchen" {
+	if ctx.Nodes.NodeMap["kitchen"].Type != "digo.Kitchen" {
 		t.Error("Incorrect type")
 	}
 }
@@ -40,9 +39,10 @@ func TestContext_Get(t *testing.T) {
 		t.Error("An error has ocurred: ", err)
 	}
 
-	i, err := ctx.Get("digo.Kitchen")
+	i, err := ctx.Get("kitchen")
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
+		return
 	}
 
 	if _, ok := i.(Kitchen); !ok {
