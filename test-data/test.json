@@ -1,0 +1,23 @@
+{
+  "nodes":{
+    "super_fridge":{
+      "type": "*digo.SuperFridge"
+    },
+    "old_stove":{
+      "type": "digo.OldStove"
+    },
+    "kitchen":{
+      "type": "digo.Kitchen",
+      "deps":[
+        {
+          "id": "super_fridge",
+          "field": "MyFridge"
+        },
+        {
+          "id": "old_stove",
+          "field": "MyStove"
+        }
+      ]
+    }
+  }
+}
