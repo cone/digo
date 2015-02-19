@@ -37,3 +37,6 @@ func (this *Injector) Resolve(node *DependencyNode) (interface{}, error) {
 
 	return cp.Interface(), nil
 }
+
+// TODO: Add a 'Get' method that returns the
+// struct with all its dependencies solved

@@ -8,7 +8,7 @@ type Dummy struct {
 type Dummy2 struct {
 }
 
-func (d Dummy2) Foo() string {
+func (d *Dummy2) Foo() string {
 	return "From Dummy2"
 }
 

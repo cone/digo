@@ -25,11 +25,11 @@ func TestInjector_New(t *testing.T) {
 func TestInjector_Resolve(t *testing.T) {
 	injector := new(Injector)
 
-	test := "hello"
+	test := ""
 
 	TypeRegistry["digo.Dummy"] = reflect.TypeOf(Dummy{})
 	TypeRegistry["string"] = reflect.TypeOf(test)
-	TypeRegistry["digo.Dummy2"] = reflect.TypeOf(Dummy2{})
+	TypeRegistry["digo.Dummy2"] = reflect.TypeOf(&Dummy2{})
 
 	dependencyTree := &DependencyNode{
 		Name: "digo.Dummy",
@@ -50,8 +50,9 @@ func TestInjector_Resolve(t *testing.T) {
 		t.Error("Type assertion failed!")
 	}
 
-	sss := target.(Dummy)
+	asserted := target.(Dummy)
 
-	t.Error(sss.Field1)
-	t.Error(sss.Field2.Foo())
+	if asserted.Field2.Foo() != "From Dummy2" {
+		t.Error("Incorrect value")
+	}
 }
