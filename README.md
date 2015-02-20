@@ -35,13 +35,13 @@ Lets suppose we have ProductController struct as follows:
 Also we have custom implementations of each of those interfaces for products, for example, we have these for the ``Repository`` interface:
 
     type ProductRepo struct{}
-    func Get(id int) interface{}{
+    func (this *ProductRepo) Get(id int) interface{}{
       //...reads from db...
       return product
     }
     
     type TestProductRepo struct{}
-    func Get(id int) interface{}{
+    func (this TestProductRepo) Get(id int) interface{}{
       return Product{id, "Test Product"}
     }
     
@@ -78,6 +78,8 @@ Then we should write a configuration file like this called ``prod.json``:
       }
     }
     
+In the file we define the types and their dependencies. We use an alias to name the type e.g. ``product_repo`` for ``myPackage.ProductRepo`` then we specify the ``type`` and if the dependency is a pointer we set the ``is_pointer`` field to ``true``, note that this is true for ``myPackage.ProductRepo`` because only a pointer to it satisfies the ``Repository`` interface.
+    
 Now we can create a ``Context`` with that file. The ``Context`` allow us to easily change the dependencies whe are injecting, that is useful if when testing: suppose we have a ``test.json`` file, in that file, instead of ``myPackage.ProductRepo`` we specify ``myPackage.TestProductRepo`` which is a test double. having those two files we can create a production context and a test context.
 
     prodCtx, err := Digo.Context("prod.json")
@@ -88,12 +90,126 @@ Now we can create a ``Context`` with that file. The ``Context`` allow us to easi
 
 Finally the context is able to generate our ``ProductController`` using the alias we specified in the json file:
 
-    productController, err := prodCtx.Get("product_repo")
+    pi, err := prodCtx.Get("product_repo")
     //...error handling...
+    productController := pi.(ProductController)
     
-    testProductController, err := testCtx.Get("product_repo")
+    ti, err := testCtx.Get("product_repo")
     //...error handling...
+    testProductController := ti.(ProductController)
     
 The gererated ``ProductController`` will already have its dependencies ``ProductRepo`` and ``ProductValidator`` ready for use!
 
     product := productController.DB.Get(1)
+
+##Usage
+
+####TypeRegistry
+
+Its pourpose is to register the types of the elements that are going to be injected or created.
+
+#####Add
+
+It allows to add a type. You must to pass a pointer to it, that is must be specified in the config file with the ``is_pointer`` flag.
+
+    TypeRegistry.Add(ProductController{})
+    
+#####AddType
+
+It allows to add a type passing directly a reflect.Type element.
+
+    TypeRegistry.AddType(reflect.TypeOf(PorductController{}))
+    
+#####Get
+
+It allows to get a reflect.Type element passing a string containing the name of the type.
+
+    t, _ := TypeRegistry.Get("myPackage")
+    
+####Digo
+
+It Manages the different contexts we may have.
+
+#####Context
+
+It returns a Context element from a given config file.
+
+    ctx, _ := Digo.Context("prod.json")
+    
+####Context
+
+It holds a given configuration that will be use to determine what dependencies will be injected to an element
+
+#####Get
+
+It will return a copy on the given type by its alias. The dependencies of pointer type will be shared.
+
+    type Foo interface{
+        GetDBConnection() DB    
+    }
+    
+    type Bar struct{
+        db DB
+    }
+    func (this *Bar) GetDBConnection() DB{
+        return this.db
+    }
+    
+    type Baz struct{
+        Msg string
+        Con Foo
+    }
+    
+    /*in config file
+    ...
+    "bar":{
+        "type": "myPackage.Bar",
+        "is_pointer": true
+    },
+    "baz":{
+        "type": "myPackage.Baz",
+        "deps": [
+            {
+                "id": "bar",
+                "field": "Con"
+            }
+        ]
+    }
+    ...
+    */
+    
+    i1, _ := ctx.Get("baz")
+    i2, _ := ctx.Get("baz")
+    
+    baz1 := i1.(Baz)
+    baz2 := i2.(Baz)
+    
+    baz1.Msg = "Hello"
+    baz2.Msg = "World"
+    
+    //baz1.Msg != baz2.Msg but baz1.Con is the same as baz2.Con, it is "shared"
+    
+#####Copy
+
+It returns a deep copy of the specified type by its alias. The copies are totally independient from each other.
+
+    i1, _ := ctx.Copy("baz")
+    i2, _ := ctx.Copy("baz")
+    
+    bar1 := i1.(Baz)
+    bar2 := i2.(Baz)
+    
+    //baz1.Msg != baz2.Msg and baz1.Con != baz2.Con
+
+#####Single
+
+It returns a pointer of a given type by its alias, so it behaves as a ``singleton``. Type assertion should be made against a pointer to the corresponding type.
+
+    i1, _ := ctx.Single("baz")
+    i2, _ := ctx.Single("baz")
+    
+    bar1 := i1.(*Baz)
+    bar2 := i2.(*Baz)
+    
+    //bar1 and bar2 are pointers to the same object
+    
