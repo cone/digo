@@ -12,8 +12,8 @@ type ContextData struct {
 }
 
 type Context struct {
-	singletons map[string]interface{}
-	Nodes      *ContextData
+	cache map[string]interface{}
+	Nodes *ContextData
 }
 
 func (this *Context) Unmarshal(filePath string) error {
@@ -30,6 +30,8 @@ func (this *Context) Unmarshal(filePath string) error {
 	}
 
 	this.Nodes = ctxData
+
+	this.cache = map[string]interface{}{}
 
 	return nil
 }
@@ -57,5 +59,29 @@ func (this *Context) Get(key string) (interface{}, error) {
 		return struct{}{}, errors.New("The given type cannot be found: " + key + " (forgot to add to the TypeRegister?)")
 	}
 
-	return depInjector.Resolve(node, this.Nodes.NodeMap)
+	return this.memoize(key, node)
 }
+
+func (this *Context) memoize(key string, node *NodeData) (interface{}, error) {
+	if cached, exists := this.cache[key]; exists {
+		return cached, nil
+	}
+
+	t, err := depInjector.Resolve(node, this.Nodes.NodeMap)
+	if err != nil {
+		return t, err
+	}
+
+	this.cache[key] = t
+
+	return t, nil
+}
+
+//TODO: Make an Maker interface so if the
+//dependency to inject impements it , we can call
+//it to initialize the dep
+
+//TODO:See how to make singletons
+
+//TODO: When an item in cache uses pointers, it shares it
+//to all instances, check if we want that

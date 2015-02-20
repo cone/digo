@@ -8,7 +8,7 @@ import (
 func TestInjector_New(t *testing.T) {
 	TypeRegistry["digo.Kitchen"] = reflect.TypeOf(Kitchen{})
 
-	cp, err := depInjector.New("digo.Kitchen")
+	cp, err := depInjector.New("digo.Kitchen", false)
 	if err != nil {
 		t.Error("Type not found")
 	}
@@ -22,12 +22,13 @@ func TestInjector_New(t *testing.T) {
 
 func TestInjector_Resolve(t *testing.T) {
 	TypeRegistry.Add(Kitchen{})
-	TypeRegistry.Add(&SuperFridge{})
+	TypeRegistry.Add(SuperFridge{})
 	TypeRegistry.Add(OldStove{})
 
 	ctxMap := map[string]*NodeData{
 		"super_fridge": &NodeData{
-			Type: "*digo.SuperFridge",
+			Type:  "digo.SuperFridge",
+			IsPtr: true,
 		},
 		"kitchen": &NodeData{
 			Type: "digo.Kitchen",

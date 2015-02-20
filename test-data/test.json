@@ -1,7 +1,8 @@
 {
   "nodes":{
     "super_fridge":{
-      "type": "*digo.SuperFridge"
+      "type": "digo.SuperFridge",
+      "is_pointer": true
     },
     "old_stove":{
       "type": "digo.OldStove"

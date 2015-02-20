@@ -15,8 +15,8 @@ var depInjector *Injector
 
 type Injector struct{}
 
-func (this *Injector) New(key string) (interface{}, error) {
-	cp, err := this.newTypeOf(key)
+func (this *Injector) New(key string, isPtr bool) (interface{}, error) {
+	cp, err := this.newTypeOf(key, isPtr)
 	if err != nil {
 		return struct{}{}, errors.New("Error creating new Type -> " + err.Error())
 	}
@@ -25,7 +25,7 @@ func (this *Injector) New(key string) (interface{}, error) {
 }
 
 func (this *Injector) Resolve(node *NodeData, nodeMap map[string]*NodeData) (interface{}, error) {
-	cp, err := this.newTypeOf(node.Type)
+	cp, err := this.newTypeOf(node.Type, node.IsPtr)
 	if err != nil {
 		return struct{}{}, errors.New("Error creating new Type -> " + err.Error())
 	}
@@ -42,10 +42,14 @@ func (this *Injector) Resolve(node *NodeData, nodeMap map[string]*NodeData) (int
 	return cp.Interface(), nil
 }
 
-func (this *Injector) newTypeOf(key string) (reflect.Value, error) {
+func (this *Injector) newTypeOf(key string, isPtr bool) (reflect.Value, error) {
 	t, err := TypeRegistry.Get(key)
 	if err != nil {
 		return reflect.Value{}, errors.New("Error getting the type from TypeRegistry -> " + err.Error())
+	}
+
+	if isPtr {
+		return reflect.New(t), nil
 	}
 
 	return reflect.New(t).Elem(), nil

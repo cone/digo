@@ -26,7 +26,7 @@ func TestContext_Unmarshal(t *testing.T) {
 
 func TestContext_Get(t *testing.T) {
 	TypeRegistry.Add(Kitchen{})
-	TypeRegistry.Add(&SuperFridge{})
+	TypeRegistry.Add(SuperFridge{})
 	TypeRegistry.Add(OldStove{})
 
 	path := "test-data/test.json"
@@ -57,6 +57,40 @@ func TestContext_Get(t *testing.T) {
 
 	if kitchen.MyStove.Fry() != "Frying slooooowly" {
 		t.Error("Incorrect Output")
+	}
+
+	kitchen.Msg = "kitchen"
+	kitchen.MyFridge.SetTemp(10)
+
+	//// a copy from cache
+
+	i2, err := ctx.Get("kitchen")
+	if err != nil {
+		t.Error("An error has ocurred: ", err)
+		return
+	}
+
+	if _, ok := i2.(Kitchen); !ok {
+		t.Error("Type assertion failed!")
+		return
+	}
+
+	kitchen2 := i.(Kitchen)
+
+	if kitchen2.MyFridge.Freeze() != "Super Freeze" {
+		t.Error("Incorrect Output")
+	}
+
+	if kitchen2.MyStove.Fry() != "Frying slooooowly" {
+		t.Error("Incorrect Output")
+	}
+
+	if kitchen2.Msg != "" {
+		t.Error("Msg should be empty!")
+	}
+
+	if kitchen2.MyFridge.GetTemp() != 10 {
+		t.Error("Fridge is shared (a pointer) so it temp sholud be 10")
 	}
 
 	TypeRegistry = TypeMap{}

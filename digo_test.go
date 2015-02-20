@@ -6,7 +6,7 @@ import (
 
 func TestDigo_Context(t *testing.T) {
 	TypeRegistry.Add(Kitchen{})
-	TypeRegistry.Add(&SuperFridge{})
+	TypeRegistry.Add(SuperFridge{})
 	TypeRegistry.Add(OldStove{})
 
 	ctx, err := Digo.Context("test-data/test.json")
