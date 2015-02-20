@@ -39,7 +39,18 @@ func (this *Injector) Resolve(node *NodeData, nodeMap map[string]*NodeData) (int
 
 	}
 
-	return cp.Interface(), nil
+	i := cp.Interface()
+
+	if init, isInit := i.(Initializer); isInit {
+
+		err := init.BeforeInject()
+		if err != nil {
+			return struct{}{}, nil
+		}
+
+	}
+
+	return i, nil
 }
 
 func (this *Injector) newTypeOf(key string, isPtr bool) (reflect.Value, error) {

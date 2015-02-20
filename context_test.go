@@ -120,8 +120,8 @@ func TestContext_Get(t *testing.T) {
 		t.Error("Msg should be empty!")
 	}
 
-	if copied.MyFridge.GetTemp() != 0 {
-		t.Error("Fridge is not shared so it should be 0")
+	if copied.MyFridge.GetTemp() != -1 {
+		t.Error("Fridge is not shared so it should be -1")
 	}
 
 	//// Single
@@ -151,8 +151,8 @@ func TestContext_Get(t *testing.T) {
 		t.Error("Msg should be empty!")
 	}
 
-	if single.MyFridge.GetTemp() != 0 {
-		t.Error("Fridge temp should be 0")
+	if single.MyFridge.GetTemp() != -1 {
+		t.Error("Fridge temp should be -1")
 	}
 
 	single.MyFridge.SetTemp(200)

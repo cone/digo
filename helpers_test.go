@@ -8,6 +8,7 @@ type Kitchen struct {
 
 type Fridge interface {
 	Freeze() string
+	BeforeInject() error
 	SetTemp(int)
 	GetTemp() int
 }
@@ -24,6 +25,11 @@ func (this *SuperFridge) Freeze() string {
 	return "Super Freeze"
 }
 
+func (this *SuperFridge) BeforeInject() error {
+	this.temp = -1
+	return nil
+}
+
 func (this *SuperFridge) SetTemp(degrees int) {
 	this.temp = degrees
 }
@@ -32,7 +38,9 @@ func (this *SuperFridge) GetTemp() int {
 	return this.temp
 }
 
-type OldStove struct{}
+type OldStove struct {
+	temp int
+}
 
 func (this OldStove) Fry() string {
 	return "Frying slooooowly"
