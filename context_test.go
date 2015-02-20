@@ -9,47 +9,45 @@ func TestContext_Unmarshal(t *testing.T) {
 
 	ctx := new(Context)
 
-	err := ctx.Unmarshal(path)
+	err := ctx.unmarshal(path)
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 	}
 
-	if len(ctx.Nodes.NodeMap) < 1 {
+	if len(ctx.NodeMap) < 1 {
 		t.Error("Incorrect number of nodes")
 		return
 	}
 
-	if ctx.Nodes.NodeMap["kitchen"].Type != "digo.Kitchen" {
+	if ctx.NodeMap["kitchen"].Type != "digo.Kitchen" {
 		t.Error("Incorrect type")
 	}
 }
 
 func TestContext_Get(t *testing.T) {
-	TypeRegistry.Add(Kitchen{})
-	TypeRegistry.Add(SuperFridge{})
-	TypeRegistry.Add(OldStove{})
+	initTypeRegistry()
 
 	path := "test-data/test.json"
 
 	ctx := new(Context)
 
-	err := ctx.Unmarshal(path)
+	err := ctx.unmarshal(path)
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 	}
 
-	i, err := ctx.Get("kitchen")
+	kitchenInterface, err := ctx.Get("kitchen")
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 		return
 	}
 
-	if _, ok := i.(Kitchen); !ok {
+	if _, ok := kitchenInterface.(Kitchen); !ok {
 		t.Error("Type assertion failed!")
 		return
 	}
 
-	kitchen := i.(Kitchen)
+	kitchen := kitchenInterface.(Kitchen)
 
 	if kitchen.MyFridge.Freeze() != "Super Freeze" {
 		t.Error("Incorrect Output")
@@ -59,43 +57,63 @@ func TestContext_Get(t *testing.T) {
 		t.Error("Incorrect Output")
 	}
 
+	//Modifying non shared field
 	kitchen.Msg = "kitchen"
+
+	//Modifying shared field (pointer)
 	kitchen.MyFridge.SetTemp(10)
 
-	//// GET
-
-	i2, err := ctx.Get("kitchen")
+	otherKitchenInterface, err := ctx.Get("kitchen")
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 		return
 	}
 
-	if _, ok := i2.(Kitchen); !ok {
+	if _, ok := otherKitchenInterface.(Kitchen); !ok {
 		t.Error("Type assertion failed!")
 		return
 	}
 
-	kitchen2 := i.(Kitchen)
+	otherKitchen := otherKitchenInterface.(Kitchen)
 
-	if kitchen2.MyFridge.Freeze() != "Super Freeze" {
+	if otherKitchen.MyFridge.Freeze() != "Super Freeze" {
 		t.Error("Incorrect Output")
 	}
 
-	if kitchen2.MyStove.Fry() != "Frying slooooowly" {
+	if otherKitchen.MyStove.Fry() != "Frying slooooowly" {
 		t.Error("Incorrect Output")
 	}
 
-	if kitchen2.Msg != "" {
+	if otherKitchen.Msg != "" {
 		t.Error("Msg should be empty!")
 	}
 
-	if kitchen2.MyFridge.GetTemp() != 10 {
+	if otherKitchen.MyFridge.GetTemp() != 10 {
 		t.Error("Fridge is shared (a pointer) so it temp sholud be 10")
 	}
 
-	//// Copy
+	clearTypeRegistry()
+}
+
+func TestContext_Copy(t *testing.T) {
+	initTypeRegistry()
+
+	path := "test-data/test.json"
+
+	ctx := new(Context)
+
+	err := ctx.unmarshal(path)
+	if err != nil {
+		t.Error("An error has ocurred: ", err)
+	}
 
 	copiedInterface, err := ctx.Copy("kitchen")
+	if err != nil {
+		t.Error("An error has ocurred: ", err)
+		return
+	}
+
+	anotherInterface, err := ctx.Copy("kitchen")
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 		return
@@ -107,6 +125,7 @@ func TestContext_Get(t *testing.T) {
 	}
 
 	copied := copiedInterface.(Kitchen)
+	another := anotherInterface.(Kitchen)
 
 	if copied.MyFridge.Freeze() != "Super Freeze" {
 		t.Error("Incorrect Output")
@@ -124,9 +143,49 @@ func TestContext_Get(t *testing.T) {
 		t.Error("Fridge is not shared so it should be -1")
 	}
 
-	//// Single
+	copied.Msg = "Hello"
+	copied.MyFridge.SetTemp(20)
+
+	//The other copy should hold its own values
+
+	if another.MyFridge.Freeze() != "Super Freeze" {
+		t.Error("Incorrect Output")
+	}
+
+	if another.MyStove.Fry() != "Frying slooooowly" {
+		t.Error("Incorrect Output")
+	}
+
+	if another.Msg != "" {
+		t.Error("Msg should be empty!")
+	}
+
+	if another.MyFridge.GetTemp() != -1 {
+		t.Error("Fridge is not shared so it should be -1")
+	}
+
+	clearTypeRegistry()
+}
+
+func TestContext_Single(t *testing.T) {
+	initTypeRegistry()
+
+	path := "test-data/test.json"
+
+	ctx := new(Context)
+
+	err := ctx.unmarshal(path)
+	if err != nil {
+		t.Error("An error has ocurred: ", err)
+	}
 
 	singleInterface, err := ctx.Single("kitchen")
+	if err != nil {
+		t.Error("An error has ocurred: ", err)
+		return
+	}
+
+	anotherInterface, err := ctx.Single("kitchen")
 	if err != nil {
 		t.Error("An error has ocurred: ", err)
 		return
@@ -138,6 +197,7 @@ func TestContext_Get(t *testing.T) {
 	}
 
 	single := singleInterface.(*Kitchen)
+	another := anotherInterface.(*Kitchen)
 
 	if single.MyFridge.Freeze() != "Super Freeze" {
 		t.Error("Incorrect Output")
@@ -152,18 +212,13 @@ func TestContext_Get(t *testing.T) {
 	}
 
 	if single.MyFridge.GetTemp() != -1 {
-		t.Error("Fridge temp should be -1")
+		t.Error("Fridge is not shared so it should be -1")
 	}
 
-	single.MyFridge.SetTemp(200)
+	single.Msg = "Hello"
+	single.MyFridge.SetTemp(20)
 
-	anotherSI, err := ctx.Single("kitchen")
-	if err != nil {
-		t.Error("An error has ocurred: ", err)
-		return
-	}
-
-	another := anotherSI.(*Kitchen)
+	//another should be the same
 
 	if another.MyFridge.Freeze() != "Super Freeze" {
 		t.Error("Incorrect Output")
@@ -173,13 +228,13 @@ func TestContext_Get(t *testing.T) {
 		t.Error("Incorrect Output")
 	}
 
-	if another.Msg != "" {
-		t.Error("Msg should be empty!")
+	if another.Msg != "Hello" {
+		t.Error("Msg should be the same!")
 	}
 
-	if another.MyFridge.GetTemp() != 200 {
-		t.Error("'another' is a singleton, so temp should be 200")
+	if another.MyFridge.GetTemp() != 20 {
+		t.Error("The fridge temp should be the same")
 	}
 
-	TypeRegistry = TypeMap{}
+	clearTypeRegistry()
 }

@@ -1,24 +1,8 @@
 package digo
 
 import (
-	"reflect"
 	"testing"
 )
-
-func TestInjector_New(t *testing.T) {
-	TypeRegistry["digo.Kitchen"] = reflect.TypeOf(Kitchen{})
-
-	cp, err := depInjector.New("digo.Kitchen", false)
-	if err != nil {
-		t.Error("Type not found")
-	}
-
-	if _, ok := cp.(Kitchen); !ok {
-		t.Error("Type assertion failed!")
-	}
-
-	TypeRegistry = TypeMap{}
-}
 
 func TestInjector_Resolve(t *testing.T) {
 	TypeRegistry.Add(Kitchen{})
@@ -41,7 +25,7 @@ func TestInjector_Resolve(t *testing.T) {
 		},
 	}
 
-	target, err := depInjector.Resolve(ctxMap["kitchen"], ctxMap)
+	target, err := depInjector.resolve(ctxMap["kitchen"], ctxMap)
 	if err != nil {
 		t.Error("The error has ocurred:", err)
 		return

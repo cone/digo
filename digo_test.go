@@ -26,3 +26,18 @@ func TestDigo_Context(t *testing.T) {
 		t.Error(i)
 	}
 }
+
+func TestDigo_New(t *testing.T) {
+	TypeRegistry.Add(Kitchen{})
+
+	cp, err := Digo.New("digo.Kitchen", false)
+	if err != nil {
+		t.Error("Type not found")
+	}
+
+	if _, ok := cp.(Kitchen); !ok {
+		t.Error("Type assertion failed!")
+	}
+
+	TypeRegistry = TypeMap{}
+}

@@ -8,14 +8,6 @@ import (
 
 type TypeMap map[string]reflect.Type
 
-var TypeRegistry TypeMap
-
-func init() {
-	if TypeRegistry == nil {
-		TypeRegistry = TypeMap{}
-	}
-}
-
 func (this TypeMap) Add(param interface{}) error {
 	t := reflect.TypeOf(param)
 	key := fmt.Sprintf("%v", t)
