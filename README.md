@@ -213,6 +213,20 @@ It returns a pointer of a given type by its alias, so it behaves as a ``singleto
     
     //bar1 and bar2 are pointers to the same object
     
+##Initializer Interface
+
+If one of the dependencies implements the ``Initializer`` interface, th ``BeforeInject`` function will be called before the dependency is injected. This could be useful to initialize the values of the dependency e.g.
+
+    type Bar struct{
+        db DB
+    }
+    func (this *Bar) GetDBConnection() DB{
+        return this.db
+    }
+    func (this *Bar) BeforeInject() error{
+        return this.db.Open()
+    }
+    
 ## Contributing
 
 1. Create your feature branch (`git checkout -b feature/my-new-feature`)
