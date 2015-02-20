@@ -1,4 +1,4 @@
-# digo
+# Digo
 
 ###Dependency Injeccion for Go
 
