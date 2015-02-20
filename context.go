@@ -105,12 +105,3 @@ func (this *Context) getFromNodeMap(key string) (*NodeData, error) {
 
 	return node, nil
 }
-
-//TODO: Make an Maker interface so if the
-//dependency to inject impements it , we can call
-//it to initialize the dep
-
-//TODO:See how to make singletons
-
-//TODO: When an item in cache uses pointers, it shares it
-//to all instances, check if we want that

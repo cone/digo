@@ -32,7 +32,7 @@ func (this *Injector) Resolve(node *NodeData, nodeMap map[string]*NodeData) (int
 
 	for _, dependency := range node.Deps {
 
-		err := this.assignValues(cp, dependency, nodeMap)
+		err := this.assignValues(cp, dependency, nodeMap, node.IsPtr)
 		if err != nil {
 			return struct{}{}, errors.New("Error resolving dependencies -> " + err.Error())
 		}
@@ -55,7 +55,7 @@ func (this *Injector) newTypeOf(key string, isPtr bool) (reflect.Value, error) {
 	return reflect.New(t).Elem(), nil
 }
 
-func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMap map[string]*NodeData) error {
+func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMap map[string]*NodeData, isPtr bool) error {
 	var depRoot *NodeData
 
 	if depNode, exists := nodeMap[dependency.ID]; exists {
@@ -64,7 +64,13 @@ func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMa
 		return errors.New("Dependency Id: " + dependency.ID + " not found")
 	}
 
-	f := cp.FieldByName(dependency.Field)
+	var f reflect.Value
+
+	if isPtr {
+		f = reflect.Indirect(cp).FieldByName(dependency.Field)
+	} else {
+		f = cp.FieldByName(dependency.Field)
+	}
 
 	if f.IsValid() {
 
