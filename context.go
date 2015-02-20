@@ -7,29 +7,21 @@ import (
 	"os"
 )
 
-type ContextData struct {
-	NodeMap map[string]*NodeData `json:"nodes"`
-}
-
 type Context struct {
-	cache map[string]interface{}
-	Nodes *ContextData
+	cache   map[string]interface{} `json:"-"`
+	NodeMap map[string]*NodeData   `json:"nodes"`
 }
 
-func (this *Context) Unmarshal(filePath string) error {
+func (this *Context) unmarshal(filePath string) error {
 	data, err := this.getFileBytes(filePath)
 	if err != nil {
 		return errors.New("Error getting file data -> " + err.Error())
 	}
 
-	ctxData := &ContextData{}
-
-	err = json.Unmarshal(data, ctxData)
+	err = json.Unmarshal(data, this)
 	if err != nil {
 		return errors.New("Error unmarshaling data -> " + err.Error())
 	}
-
-	this.Nodes = ctxData
 
 	this.cache = map[string]interface{}{}
 
@@ -75,7 +67,7 @@ func (this *Context) memoize(key string, node *NodeData) (interface{}, error) {
 		return cached, nil
 	}
 
-	t, err := depInjector.Resolve(node, this.Nodes.NodeMap)
+	t, err := depInjector.resolve(node, this.NodeMap)
 	if err != nil {
 		return t, err
 	}
@@ -91,13 +83,13 @@ func (this *Context) Copy(key string) (interface{}, error) {
 		return struct{}{}, err
 	}
 
-	return depInjector.Resolve(node, this.Nodes.NodeMap)
+	return depInjector.resolve(node, this.NodeMap)
 }
 
 func (this *Context) getFromNodeMap(key string) (*NodeData, error) {
 	var node *NodeData
 
-	if tmpNode, exists := this.Nodes.NodeMap[key]; exists {
+	if tmpNode, exists := this.NodeMap[key]; exists {
 		node = tmpNode
 	} else {
 		return nil, errors.New("The given type cannot be found: " + key + " (forgot to add to the TypeRegister?)")

@@ -45,3 +45,13 @@ type OldStove struct {
 func (this OldStove) Fry() string {
 	return "Frying slooooowly"
 }
+
+func initTypeRegistry() {
+	TypeRegistry.Add(Kitchen{})
+	TypeRegistry.Add(SuperFridge{})
+	TypeRegistry.Add(OldStove{})
+}
+
+func clearTypeRegistry() {
+	TypeRegistry = TypeMap{}
+}

@@ -15,16 +15,7 @@ var depInjector *Injector
 
 type Injector struct{}
 
-func (this *Injector) New(key string, isPtr bool) (interface{}, error) {
-	cp, err := this.newTypeOf(key, isPtr)
-	if err != nil {
-		return struct{}{}, errors.New("Error creating new Type -> " + err.Error())
-	}
-
-	return cp.Interface(), nil
-}
-
-func (this *Injector) Resolve(node *NodeData, nodeMap map[string]*NodeData) (interface{}, error) {
+func (this *Injector) resolve(node *NodeData, nodeMap map[string]*NodeData) (interface{}, error) {
 	cp, err := this.newTypeOf(node.Type, node.IsPtr)
 	if err != nil {
 		return struct{}{}, errors.New("Error creating new Type -> " + err.Error())
@@ -87,7 +78,7 @@ func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMa
 
 		if f.CanSet() {
 
-			depcp, err := this.Resolve(depRoot, nodeMap)
+			depcp, err := this.resolve(depRoot, nodeMap)
 			if err != nil {
 				return err
 			}
