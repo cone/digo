@@ -104,43 +104,43 @@ The gererated ``ProductController`` will already have its dependencies ``Product
 
 ##Usage
 
-####TypeRegistry
+###TypeRegistry
 
 Its pourpose is to register the types of the elements that are going to be injected or created.
 
-#####Add
+####Add
 
 It allows to add a type. You must to pass a pointer to it, that is must be specified in the config file with the ``is_pointer`` flag.
 
     TypeRegistry.Add(ProductController{})
     
-#####AddType
+####AddType
 
 It allows to add a type passing directly a reflect.Type element.
 
     TypeRegistry.AddType(reflect.TypeOf(PorductController{}))
     
-#####Get
+####Get
 
 It allows to get a reflect.Type element passing a string containing the name of the type.
 
     t, _ := TypeRegistry.Get("myPackage")
     
-####Digo
+###Digo
 
 It Manages the different contexts we may have.
 
-#####Context
+####Context
 
 It returns a Context element from a given config file.
 
     ctx, _ := Digo.Context("prod.json")
     
-####Context
+###Context
 
 It holds a given configuration that will be use to determine what dependencies will be injected to an element
 
-#####Get
+####Get
 
 It will return a copy on the given type by its alias. The dependencies of pointer type will be shared.
 
@@ -189,7 +189,7 @@ It will return a copy on the given type by its alias. The dependencies of pointe
     
     //baz1.Msg != baz2.Msg but baz1.Con is the same as baz2.Con, it is "shared"
     
-#####Copy
+####Copy
 
 It returns a deep copy of the specified type by its alias. The copies are totally independient from each other.
 
@@ -201,7 +201,7 @@ It returns a deep copy of the specified type by its alias. The copies are totall
     
     //baz1.Msg != baz2.Msg and baz1.Con != baz2.Con
 
-#####Single
+####Single
 
 It returns a pointer of a given type by its alias, so it behaves as a ``singleton``. Type assertion should be made against a pointer to the corresponding type.
 
