@@ -8,8 +8,9 @@ import (
 )
 
 type Context struct {
-	cache   map[string]interface{} `json:"-"`
-	NodeMap map[string]*NodeData   `json:"nodes"`
+	injector *Injector
+	cache    map[string]interface{} `json:"-"`
+	NodeMap  map[string]*NodeData   `json:"nodes"`
 }
 
 func (this *Context) unmarshal(filePath string) error {
@@ -24,6 +25,8 @@ func (this *Context) unmarshal(filePath string) error {
 	}
 
 	this.cache = map[string]interface{}{}
+
+	this.injector = NewInjector(this.NodeMap)
 
 	return nil
 }
@@ -47,7 +50,7 @@ func (this *Context) memoize(key string, node *NodeData) (interface{}, error) {
 		return cached, nil
 	}
 
-	t, err := depInjector.resolve(node, key, this.NodeMap)
+	t, err := this.injector.resolve(node, key)
 	if err != nil {
 		return t, err
 	}
@@ -63,7 +66,7 @@ func (this *Context) Get(key string) (interface{}, error) {
 		return struct{}{}, err
 	}
 
-	return depInjector.resolve(node, key, this.NodeMap)
+	return this.injector.resolve(node, key)
 }
 
 func (this *Context) getFromNodeMap(key string) (*NodeData, error) {

@@ -5,20 +5,21 @@ import (
 	"reflect"
 )
 
-func init() {
-	if depInjector == nil {
-		depInjector = new(Injector)
-		depInjector.cache = map[string]interface{}{}
+func NewInjector(nodeMap map[string]*NodeData) *Injector {
+	return &Injector{
+		cache:   map[string]interface{}{},
+		nodeMap: nodeMap,
 	}
 }
 
 var depInjector *Injector
 
 type Injector struct {
-	cache map[string]interface{}
+	cache   map[string]interface{}
+	nodeMap map[string]*NodeData
 }
 
-func (this *Injector) resolve(node *NodeData, alias string, nodeMap map[string]*NodeData) (interface{}, error) {
+func (this *Injector) resolve(node *NodeData, alias string) (interface{}, error) {
 	if node.Scope == "singleton" {
 		node.IsPtr = true
 
@@ -34,7 +35,7 @@ func (this *Injector) resolve(node *NodeData, alias string, nodeMap map[string]*
 
 	for _, dependency := range node.Deps {
 
-		err := this.assignValues(cp, dependency, nodeMap, node.IsPtr)
+		err := this.assignValues(cp, dependency, node.IsPtr)
 		if err != nil {
 			return struct{}{}, errors.New("Error resolving dependencies -> " + err.Error())
 		}
@@ -79,10 +80,10 @@ func (this *Injector) newTypeOf(key string, isPtr bool) (reflect.Value, error) {
 	return reflect.New(t).Elem(), nil
 }
 
-func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMap map[string]*NodeData, isPtr bool) error {
+func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, isPtr bool) error {
 	var depRoot *NodeData
 
-	if depNode, exists := nodeMap[dependency.ID]; exists {
+	if depNode, exists := this.nodeMap[dependency.ID]; exists {
 		depRoot = depNode
 	} else {
 		return errors.New("Dependency Id: " + dependency.ID + " not found")
@@ -100,7 +101,7 @@ func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMa
 
 		if f.CanSet() {
 
-			depcp, err := this.resolve(depRoot, dependency.ID, nodeMap)
+			depcp, err := this.resolve(depRoot, dependency.ID)
 			if err != nil {
 				return err
 			}
