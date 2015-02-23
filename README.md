@@ -124,7 +124,7 @@ It allows to add a type passing directly a reflect.Type element.
 
 It allows to get a reflect.Type element passing a string containing the name of the type.
 
-    t, _ := TypeRegistry.Get("myPackage")
+    t, _ := TypeRegistry.Get("myPackage.Foo")
     
 ###Digo
 
@@ -142,77 +142,65 @@ It holds a given configuration that will be use to determine what dependencies w
 
 ####Get
 
-It will return a copy on the given type by its alias. The dependencies of pointer type will be shared.
+It will return the given type's interface by its alias.
 
-    type Foo interface{
-        GetDBConnection() DB    
-    }
+    i, _ := cxt.Get("foo")
+    foo := i.(Foo)
     
-    type Bar struct{
-        db DB
-    }
-    func (this *Bar) GetDBConnection() DB{
-        return this.db
-    }
-    
-    type Baz struct{
-        Msg string
-        Con Foo
-    }
-    
-    /*in config file
+##Configuration file
+
+The configuration file holds a Json string describing the components and their dependencies.
+
+###Component fields
+
+####Type
+
+It describes the type of the component including the package.
+
     ...
-    "bar":{
-        "type": "myPackage.Bar",
-        "is_pointer": true
+    "type": "myPackage.Foo",
+    ...
+    
+####Is_pointer
+
+A flag to specify that the component is a pointer (false by default). If it is not a "singleton", digo will create a new instance and return a pointer to it.
+
+    ....
+    "is_pointer": true,
+    ....
+    
+####Scope
+
+It descibes the scope of the component. This field can hold two values: prototype and singleton.
+
+If 'prototype' is used, a copy of the component will be created each time Context.Get is called. This is the default behavior is no 'scope' is specified.
+
+    ...
+    "scope": "prototype"
+    ...
+    
+If 'singleton' is used, a reference to the same component will be returned each time Context.Get is called. The variable or struct field that will hold the singleton should be a pointer.
+
+    ...
+    "scope": "singleton"
+    ...
+
+####Deps
+
+It descibes the dependencies of the component. Here the id of the component used as a dependency should be specified and the name of the field that will hold it e.g.
+
+    ...
+    "foo":{
+        "type": "myPackage.Foo"
     },
-    "baz":{
-        "type": "myPackage.Baz",
-        "deps": [
-            {
-                "id": "bar",
-                "field": "Con"
-            }
-        ]
-    }
+    "deps":[
+        {
+          "id": "foo",
+          "field": "MyFoo"
+        }
+      ]
     ...
-    */
-    
-    i1, _ := ctx.Get("baz")
-    i2, _ := ctx.Get("baz")
-    
-    baz1 := i1.(Baz)
-    baz2 := i2.(Baz)
-    
-    baz1.Msg = "Hello"
-    baz2.Msg = "World"
-    
-    //baz1.Msg != baz2.Msg but baz1.Con is the same as baz2.Con, it is "shared"
-    
-####Copy
 
-It returns a deep copy of the specified type by its alias. The copies are totally independient from each other.
-
-    i1, _ := ctx.Copy("baz")
-    i2, _ := ctx.Copy("baz")
-    
-    bar1 := i1.(Baz)
-    bar2 := i2.(Baz)
-    
-    //baz1.Msg != baz2.Msg and baz1.Con != baz2.Con
-
-####Single
-
-It returns a pointer of a given type by its alias, so it behaves as a ``singleton``. Type assertion should be made against a pointer to the corresponding type.
-
-    i1, _ := ctx.Single("baz")
-    i2, _ := ctx.Single("baz")
-    
-    bar1 := i1.(*Baz)
-    bar2 := i2.(*Baz)
-    
-    //bar1 and bar2 are pointers to the same object
-    
 ##Initializer Interface
 
 If one of the dependencies implements the ``Initializer`` interface, th ``BeforeInject`` function will be called before the dependency is injected. This could be useful to initialize the values of the dependency e.g.
