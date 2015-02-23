@@ -8,14 +8,25 @@ import (
 func init() {
 	if depInjector == nil {
 		depInjector = new(Injector)
+		depInjector.cache = map[string]interface{}{}
 	}
 }
 
 var depInjector *Injector
 
-type Injector struct{}
+type Injector struct {
+	cache map[string]interface{}
+}
 
-func (this *Injector) resolve(node *NodeData, nodeMap map[string]*NodeData) (interface{}, error) {
+func (this *Injector) resolve(node *NodeData, alias string, nodeMap map[string]*NodeData) (interface{}, error) {
+	if node.Scope == "singleton" {
+		node.IsPtr = true
+
+		if i, err := this.getFromCache(alias); err == nil {
+			return i, nil
+		}
+	}
+
 	cp, err := this.newTypeOf(node.Type, node.IsPtr)
 	if err != nil {
 		return struct{}{}, errors.New("Error creating new Type -> " + err.Error())
@@ -41,7 +52,18 @@ func (this *Injector) resolve(node *NodeData, nodeMap map[string]*NodeData) (int
 
 	}
 
+	if node.Scope == "singleton" {
+		this.cache[alias] = i
+	}
+
 	return i, nil
+}
+
+func (this *Injector) getFromCache(key string) (interface{}, error) {
+	if item, exists := this.cache[key]; exists {
+		return item, nil
+	}
+	return struct{}{}, errors.New("Not in cache")
 }
 
 func (this *Injector) newTypeOf(key string, isPtr bool) (reflect.Value, error) {
@@ -78,7 +100,7 @@ func (this *Injector) assignValues(cp reflect.Value, dependency *DepData, nodeMa
 
 		if f.CanSet() {
 
-			depcp, err := this.resolve(depRoot, nodeMap)
+			depcp, err := this.resolve(depRoot, dependency.ID, nodeMap)
 			if err != nil {
 				return err
 			}

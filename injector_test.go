@@ -25,7 +25,7 @@ func TestInjector_Resolve(t *testing.T) {
 		},
 	}
 
-	target, err := depInjector.resolve(ctxMap["kitchen"], ctxMap)
+	target, err := depInjector.resolve(ctxMap["kitchen"], "kitchen", ctxMap)
 	if err != nil {
 		t.Error("The error has ocurred:", err)
 		return

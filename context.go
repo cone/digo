@@ -42,32 +42,12 @@ func (this *Context) getFileBytes(filePath string) ([]byte, error) {
 	return fileBytes, nil
 }
 
-func (this *Context) Get(key string) (interface{}, error) {
-	node, err := this.getFromNodeMap(key)
-	if err != nil {
-		return struct{}{}, err
-	}
-
-	return this.memoize(key, node)
-}
-
-func (this *Context) Single(key string) (interface{}, error) {
-	node, err := this.getFromNodeMap(key)
-	if err != nil {
-		return struct{}{}, err
-	}
-
-	node.IsPtr = true
-
-	return this.memoize("single_"+key, node)
-}
-
 func (this *Context) memoize(key string, node *NodeData) (interface{}, error) {
 	if cached, exists := this.cache[key]; exists {
 		return cached, nil
 	}
 
-	t, err := depInjector.resolve(node, this.NodeMap)
+	t, err := depInjector.resolve(node, key, this.NodeMap)
 	if err != nil {
 		return t, err
 	}
@@ -77,13 +57,13 @@ func (this *Context) memoize(key string, node *NodeData) (interface{}, error) {
 	return t, nil
 }
 
-func (this *Context) Copy(key string) (interface{}, error) {
+func (this *Context) Get(key string) (interface{}, error) {
 	node, err := this.getFromNodeMap(key)
 	if err != nil {
 		return struct{}{}, err
 	}
 
-	return depInjector.resolve(node, this.NodeMap)
+	return depInjector.resolve(node, key, this.NodeMap)
 }
 
 func (this *Context) getFromNodeMap(key string) (*NodeData, error) {
