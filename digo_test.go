@@ -9,7 +9,7 @@ func TestDigo_Context(t *testing.T) {
 	TypeRegistry.Add(SuperFridge{})
 	TypeRegistry.Add(OldStove{})
 
-	ctx, err := Digo.Context("test-data/test.json")
+	ctx, err := ContextFor("test-data/test.json")
 	if err != nil {
 		t.Error("An error has ocurred:", err)
 		return
@@ -30,7 +30,7 @@ func TestDigo_Context(t *testing.T) {
 func TestDigo_New(t *testing.T) {
 	TypeRegistry.Add(Kitchen{})
 
-	cp, err := Digo.New("digo.Kitchen", false)
+	cp, err := digo.New("digo.Kitchen", false)
 	if err != nil {
 		t.Error("Type not found")
 	}
