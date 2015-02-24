@@ -116,7 +116,7 @@ Its pourpose is to register the types of the elements that are going to be injec
 
 ####Add
 
-It allows to add a type. You must to pass a pointer to it, that is must be specified in the config file with the ``is_pointer`` flag.
+It allows to add a type. You must not pass a pointer to it, that is must be specified in the config file with the ``is_pointer`` flag.
 
     TypeRegistry.Add(ProductController{})
     
