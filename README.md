@@ -104,6 +104,12 @@ The gererated ``ProductController`` will already have its dependencies ``Product
 
 ##Usage
 
+###ContextFor
+
+It returns a Context element from a given config file.
+
+    ctx, _ := ContextFor("prod.json")
+
 ###TypeRegistry
 
 Its pourpose is to register the types of the elements that are going to be injected or created.
@@ -125,16 +131,6 @@ It allows to add a type passing directly a reflect.Type element.
 It allows to get a reflect.Type element passing a string containing the name of the type.
 
     t, _ := TypeRegistry.Get("myPackage.Foo")
-    
-###Digo
-
-It Manages the different contexts we may have.
-
-####Context
-
-It returns a Context element from a given config file.
-
-    ctx, _ := Digo.Context("prod.json")
     
 ###Context
 
