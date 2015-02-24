@@ -82,10 +82,10 @@ In the file we define the types and their dependencies. We use an alias to name 
     
 Now we can create a ``Context`` with that file. The ``Context`` allow us to easily change the dependencies whe are injecting, that is useful if when testing: suppose we have a ``test.json`` file, in that file, instead of ``myPackage.ProductRepo`` we specify ``myPackage.TestProductRepo`` which is a test double. having those two files we can create a production context and a test context.
 
-    prodCtx, err := Digo.Context("prod.json")
+    prodCtx, err := ContextFor("prod.json")
     //...error handling...
     
-    testCtx, err := Digo.Context("test.json")
+    testCtx, err := ContextFor("test.json")
     //...error handling...
 
 Finally the context is able to generate our ``ProductController`` using the alias we specified in the json file:
