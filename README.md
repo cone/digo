@@ -1,5 +1,7 @@
 # Digo
 
+https://travis-ci.org/cone/digo.svg
+
 ###Dependency Injeccion for Go
 
 Digo is inspired in the way that the Spring framework for Java allows dependency injection using an configuration file. The difference is that digo uses Json instead of XML and, for language limitations, the Types must be registered.
