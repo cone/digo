@@ -1,6 +1,7 @@
 # Digo
 
 [![Build Status](https://travis-ci.org/cone/digo.svg?branch=master)](https://travis-ci.org/cone/digo)
+[![views](https://sourcegraph.com/api/repos/github.com/cone/digo/.counters/views.svg)](https://sourcegraph.com/github.com/cone/digo)
 
 ###Dependency Injeccion for Go
 
