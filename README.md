@@ -1,6 +1,6 @@
 # Digo
 
-https://travis-ci.org/cone/digo.svg
+[![Build Status](https://travis-ci.org/cone/digo.svg?branch=master)](https://travis-ci.org/cone/digo)
 
 ###Dependency Injeccion for Go
 
