@@ -82,10 +82,10 @@ In the file we define the types and their dependencies. We use an alias to name 
     
 Now we can create a ``Context`` with that file. The ``Context`` allow us to easily change the dependencies whe are injecting, that is useful if when testing: suppose we have a ``test.json`` file, in that file, instead of ``myPackage.ProductRepo`` we specify ``myPackage.TestProductRepo`` which is a test double. having those two files we can create a production context and a test context.
 
-    prodCtx, err := Digo.Context("prod.json")
+    prodCtx, err := ContextFor("prod.json")
     //...error handling...
     
-    testCtx, err := Digo.Context("test.json")
+    testCtx, err := ContextFor("test.json")
     //...error handling...
 
 Finally the context is able to generate our ``ProductController`` using the alias we specified in the json file:
@@ -104,13 +104,19 @@ The gererated ``ProductController`` will already have its dependencies ``Product
 
 ##Usage
 
+###ContextFor
+
+It returns a Context element from a given config file.
+
+    ctx, _ := ContextFor("prod.json")
+
 ###TypeRegistry
 
 Its pourpose is to register the types of the elements that are going to be injected or created.
 
 ####Add
 
-It allows to add a type. You must to pass a pointer to it, that is must be specified in the config file with the ``is_pointer`` flag.
+It allows to add a type. You must not pass a pointer to it, that is must be specified in the config file with the ``is_pointer`` flag.
 
     TypeRegistry.Add(ProductController{})
     
@@ -125,16 +131,6 @@ It allows to add a type passing directly a reflect.Type element.
 It allows to get a reflect.Type element passing a string containing the name of the type.
 
     t, _ := TypeRegistry.Get("myPackage.Foo")
-    
-###Digo
-
-It Manages the different contexts we may have.
-
-####Context
-
-It returns a Context element from a given config file.
-
-    ctx, _ := Digo.Context("prod.json")
     
 ###Context
 
