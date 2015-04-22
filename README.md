@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/cone/digo.svg?branch=master)](https://travis-ci.org/cone/digo)
 [![views](https://sourcegraph.com/api/repos/github.com/cone/digo/.counters/views.svg)](https://sourcegraph.com/github.com/cone/digo)
 
-###Dependency Injeccion for Go
+###Dependency Injection for Go
 
 Digo is inspired in the way that the Spring framework for Java allows dependency injection using an configuration file. The difference is that digo uses Json instead of XML and, for language limitations, the Types must be registered.
 
