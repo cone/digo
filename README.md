@@ -7,6 +7,8 @@
 
 Digo is inspired in the way that the Spring framework for Java allows dependency injection using an configuration file. The difference is that digo uses Json instead of XML and, for language limitations, the Types must be registered.
 
+There are also other DI libraries that work without using reflection, [Octopus](https://github.com/tholowka/octopus) is a good example.
+
 ##Install
 
 Download the repository with:
